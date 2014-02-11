@@ -31,7 +31,7 @@ public class Session {
 		}
 	}
 
-	public byte[] readMessage() {
+	public byte[] readMessage() throws IOException {
 		return SocketChannelUtil.readData(channel);
 	}
 

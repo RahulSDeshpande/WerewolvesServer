@@ -11,91 +11,64 @@ import java.util.*;
 import com.boringpeople.werewolves.message.CreateRoomMessage;
 import com.boringpeople.werewolves.message.JoinRoomMessage;
 import com.boringpeople.werewolves.message.MessageType;
+import com.boringpeople.werewolves.message.SignInResultMessage;
 import com.boringpeople.werewolves.util.MessageUtil;
 import com.boringpeople.werewolves.util.SocketChannelUtil;
-import com.boringpeople.werewolves.processor.IMessageProcessor;
-import com.boringpeople.werewolves.processor.ISignProcessor;
 
-public class Hall extends TimerTask implements IDispose, IHall {
 
+public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
+
+    private static int _id=0;
+    private int id;
     public ArrayList<Player> players;
 
     private boolean disposed;
     private int capability;
-    private final Selector selector;
-    private final List<Session> sessions;
-    private final HashMap<Integer, Room> rooms;
-    private final Timer timer;
 
-    public ISignProcessor iAuthProcessor;
-
-    public final List<IMessageProcessor> iMessageProcessor;
+    private List<Session> sessions;
+    private HashMap<Integer, Room> rooms;
 
     public Hall() throws IOException {
         this(-1);
     }
 
+
     public Hall(int capability) throws IOException {
+        super("Hall "+_id+" Timer");
+        id=_id++;
         this.capability = capability;
         rooms = new HashMap<>();
-        iMessageProcessor = new ArrayList<>();
         sessions = new ArrayList<>();
-        timer = new Timer("SelectorServer Timer");
-        selector = Selector.open();
     }
 
-    public void addMessageProcessor(IMessageProcessor imp) {
-        if (imp != null && !iMessageProcessor.contains(imp)) {
-            iMessageProcessor.add(imp);
-        }
-    }
 
     @Override
-    public void run() {
-        try {
-            selector.selectNow();
-            Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-            while (keyIterator.hasNext()) {
-                SelectionKey key = keyIterator.next();
-                if (key.isValid()) {
-                    if (key.channel() != null) {
-                        if (key.isReadable()) {
-                            processMessage(key);
-                        }
-                        if (key.isWritable()) {
-                            sendMessageTo(key);
-                        }
-                    } else {
-                        key.cancel();
-                    }
-                }
-                keyIterator.remove();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendMessageTo(SelectionKey key) throws IOException {
+    protected void onChannelWritable(SelectionKey key) throws IOException {
         Session session = (Session) key.attachment();
         session.sendMessage();
     }
 
-    private void processMessage(SelectionKey key) {
+    @Override
+    protected void onChannelReadable(SelectionKey key) throws IOException {
         byte[] data = SocketChannelUtil.readData((SocketChannel) key.channel());
         if (data != null && data.length > 0) {
             MessageType mt = MessageUtil.getMessageType(data);
             switch (mt) {
+                case SignIn:
+                    Session session=(Session)key.attachment();
+                    session.scheduleMessage(new SignInResultMessage());
+                    break;
                 case CreateRoom:
                     CreateRoomMessage crm = MessageUtil.deSerializeMessage(data, new CreateRoomMessage());
                     createRoom(key, crm);
+                    break;
                 case JoinRoom:
                     JoinRoomMessage jrm = MessageUtil.deSerializeMessage(data, new JoinRoomMessage());
                     joinRoom(key, jrm);
                     break;
             }
             try {
-                System.out.println("New Message From :" + ((SocketChannel) key.channel()).getRemoteAddress() + " "
+                System.out.println("[Hall_"+id+"] New Message From :" + ((SocketChannel) key.channel()).getRemoteAddress() + " "
                         + new String(data));
             } catch (IOException e1) {
                 e1.printStackTrace();
@@ -105,9 +78,14 @@ public class Hall extends TimerTask implements IDispose, IHall {
 
     private void createRoom(SelectionKey key, CreateRoomMessage crm) {
         try {
-            Room room = new Room();
-            rooms.put(room.Id, room);
+            Room room = new Room(this);
+            room.start();
+            rooms.put(room.id, room);
             joinRoom(key, room);
+            Session session = (Session) key.attachment();
+            CreateRoomMessage rcrm=new CreateRoomMessage();
+            rcrm.roomId=room.id;
+            session.scheduleMessage(rcrm);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,6 +99,11 @@ public class Hall extends TimerTask implements IDispose, IHall {
             } catch (ClosedChannelException e) {
                 e.printStackTrace();
             }
+        }else {
+            Session session = (Session) key.attachment();
+            JoinRoomMessage rjrm=new JoinRoomMessage(-1);
+            rjrm.description="Room "+jrm.roomId+" Not Exists.";
+            session.scheduleMessage(rjrm);
         }
     }
 
@@ -142,37 +125,33 @@ public class Hall extends TimerTask implements IDispose, IHall {
         sessions.add(session);
     }
 
-    public int getCapability() {
-        return capability;
-    }
-
-    public int getClientCount() {
-        return selector.keys().size();
-    }
-
-    public boolean canAddMore() {
-        return capability == -1 ? true : selector.keys().size() < capability;
-    }
 
     public void startServer() throws Exception {
         if (disposed) {
             throw new Exception("Object Disposed");
         }
-        timer.schedule(this, 10, 30);
+        start();
     }
 
     @Override
-    public void playerLeaveRoom(Player player) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void playerLeaveRoom(Session session) {
+        try {
+            session.channel.register(selector, SelectionKey.OP_READ|SelectionKey.OP_WRITE,session);
+        }catch (Exception exp)
+        {
+            exp.printStackTrace();
+        }
     }
 
     @Override
     public void roomDissolve(Room room) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        room.dispose();
+        rooms.remove(room.id);
     }
 
     @Override
     public void dispose() {
+        stop();
         disposed = true;
         try {
             for (SelectionKey sk : selector.keys()) {
@@ -183,5 +162,4 @@ public class Hall extends TimerTask implements IDispose, IHall {
             e.printStackTrace();
         }
     }
-
 }

@@ -14,4 +14,9 @@ public class JoinRoomMessage extends Message {
     public JoinRoomMessage() {
         super(MessageType.JoinRoom);
     }
+
+    public JoinRoomMessage(int roomId) {
+        this();
+        this.roomId=roomId;
+    }
 }

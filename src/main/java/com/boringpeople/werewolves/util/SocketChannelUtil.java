@@ -8,22 +8,19 @@ import com.boringpeople.werewolves.message.Message;
 
 public class SocketChannelUtil {
 	
-	public static byte[] readData(SocketChannel channel) {
+	public static byte[] readData(SocketChannel channel) throws IOException {
 		ByteBuffer buffer = ByteBuffer.allocate(2);
-		try {
-			int size = 0;
-			channel.read(buffer);
-			buffer.flip();
-			int msgLength = buffer.getChar() - 2;
-			System.out.println("Message Length:" + msgLength);
-			buffer = ByteBuffer.allocate(msgLength);
-			while ((size += channel.read(buffer)) < msgLength);
-			buffer.flip();
-			return buffer.array();
-		} catch (Exception exp) {
-			exp.printStackTrace();
-		}
-		return null;
+
+        int size = 0;
+        channel.read(buffer);
+        buffer.flip();
+        int msgLength = buffer.getChar() - 2;
+        System.out.println("Message Length:" + msgLength);
+        buffer = ByteBuffer.allocate(msgLength);
+        while ((size += channel.read(buffer)) < msgLength);
+        buffer.flip();
+        return buffer.array();
+
 	}
 	
 	public static void writeMessage(Message msg, SocketChannel channel) throws IOException {

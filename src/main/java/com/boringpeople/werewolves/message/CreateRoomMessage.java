@@ -8,6 +8,8 @@ package com.boringpeople.werewolves.message;
  * To change this template use File | Settings | File Templates.
  */
 public class CreateRoomMessage extends Message {
+    public int roomId;
+
     public  CreateRoomMessage(){
         super(MessageType.CreateRoom);
     }

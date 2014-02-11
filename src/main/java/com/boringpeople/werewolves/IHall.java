@@ -8,6 +8,6 @@ package com.boringpeople.werewolves;
  * To change this template use File | Settings | File Templates.
  */
 public interface IHall {
-    public void playerLeaveRoom(Player player);
+    public void playerLeaveRoom(Session session);
     public void roomDissolve(Room room);
 }

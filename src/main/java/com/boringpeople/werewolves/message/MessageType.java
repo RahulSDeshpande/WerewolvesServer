@@ -1,7 +1,7 @@
 package com.boringpeople.werewolves.message;
 
 public enum MessageType {
-
+    None(""),
 	SignIn("signIn"), CreateRoom("createRoom"), JoinRoom("joinRoom"), LeaveRoom("leaveRoom"), Ready("ready"), Disready(
 			"disready"), GameStart("gameStart"), AssignRoles("assignRoles"), SelectPlayers("selectPlayers");
 
@@ -36,8 +36,9 @@ public enum MessageType {
 			return MessageType.AssignRoles;
 		case "selectPlayers":
 			return MessageType.SelectPlayers;
+        default:
+            return  MessageType.None;
 		}
-		throw new RuntimeException("Cannt Converte " + type + " To MessageType.");
 	}
 
 }
