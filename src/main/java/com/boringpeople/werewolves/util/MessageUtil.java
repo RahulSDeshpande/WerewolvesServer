@@ -20,7 +20,7 @@ public class MessageUtil {
 
     public static MessageType getMessageType(byte[] data){
         JSONObject json = new JSONObject(new String(data));
-        return MessageType.Converte(json.optString("type"));
+        return MessageType.transform(json.optString("type"));
     }
 
 	public static <T extends Message> T deSerializeMessage(byte[] data, T msg) {
@@ -34,7 +34,7 @@ public class MessageUtil {
 
 		try {
 			JSONObject json = new JSONObject(str);
-			if (msg.type == MessageType.Converte(json.optString("type"))) {
+			if (msg.type == MessageType.transform(json.optString("type"))) {
 				JSONArray jarray = json.names();
 				Class<?> zlass = msg.getClass();
 				Map<String, Field> fieldmap = new HashMap<String, Field>();

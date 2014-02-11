@@ -16,7 +16,7 @@ public enum MessageType {
 		return this._type;
 	}
 
-	public static MessageType Converte(String type) {
+	public static MessageType transform(String type) {
 		switch (type) {
 		case "signIn":
 			return MessageType.SignIn;

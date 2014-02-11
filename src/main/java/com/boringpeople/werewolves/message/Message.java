@@ -12,6 +12,7 @@ public abstract class Message implements Serializable {
 	public String from;
 	public String to;
 	public Date when;
+    public int code;
     public String description;
 	
 	public final MessageType type;

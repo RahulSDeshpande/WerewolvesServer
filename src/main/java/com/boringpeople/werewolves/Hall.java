@@ -1,19 +1,20 @@
 package com.boringpeople.werewolves;
 
-import java.io.IOException;
-import java.net.StandardSocketOptions;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.util.*;
-
 import com.boringpeople.werewolves.message.CreateRoomMessage;
 import com.boringpeople.werewolves.message.JoinRoomMessage;
 import com.boringpeople.werewolves.message.MessageType;
 import com.boringpeople.werewolves.message.SignInResultMessage;
 import com.boringpeople.werewolves.util.MessageUtil;
 import com.boringpeople.werewolves.util.SocketChannelUtil;
+
+import java.io.IOException;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
@@ -32,7 +33,6 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
         this(-1);
     }
 
-
     public Hall(int capability) throws IOException {
         super("Hall "+_id+" Timer");
         id=_id++;
@@ -40,7 +40,6 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
         rooms = new HashMap<>();
         sessions = new ArrayList<>();
     }
-
 
     @Override
     protected void onChannelWritable(SelectionKey key) throws IOException {
@@ -101,7 +100,8 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
             }
         }else {
             Session session = (Session) key.attachment();
-            JoinRoomMessage rjrm=new JoinRoomMessage(-1);
+            JoinRoomMessage rjrm=new JoinRoomMessage();
+            rjrm.code=-1;
             rjrm.description="Room "+jrm.roomId+" Not Exists.";
             session.scheduleMessage(rjrm);
         }
@@ -147,6 +147,7 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
     public void roomDissolve(Room room) {
         room.dispose();
         rooms.remove(room.id);
+        System.out.println("Room Auto Dissolve.");
     }
 
     @Override

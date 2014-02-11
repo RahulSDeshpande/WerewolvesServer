@@ -9,7 +9,6 @@ package com.boringpeople.werewolves.message;
  */
 public class CreateRoomMessage extends Message {
     public int roomId;
-
     public  CreateRoomMessage(){
         super(MessageType.CreateRoom);
     }
