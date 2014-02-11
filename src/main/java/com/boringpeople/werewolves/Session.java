@@ -13,8 +13,9 @@ public class Session {
 	public Player player;
 	public LinkedList<Message> messages;
 	public SocketChannel channel;
+    public GameState state;
 
-	public Session(SocketChannel channel) {
+    public Session(SocketChannel channel) {
 		Id = System.nanoTime();
 		messages = new LinkedList<>();
 		this.channel = channel;

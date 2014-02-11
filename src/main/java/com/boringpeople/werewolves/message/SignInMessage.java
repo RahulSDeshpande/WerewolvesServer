@@ -10,8 +10,12 @@ package com.boringpeople.werewolves.message;
 public class SignInMessage extends Message {
     public String nickName;
 
-    public SignInMessage(String nickName) {
+    public SignInMessage(){
         super(MessageType.SignIn);
+    }
+
+    public SignInMessage(String nickName) {
+        this();
         this.nickName = nickName;
     }
 }

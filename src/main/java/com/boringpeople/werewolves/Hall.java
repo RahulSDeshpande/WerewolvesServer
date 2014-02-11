@@ -1,9 +1,6 @@
 package com.boringpeople.werewolves;
 
-import com.boringpeople.werewolves.message.CreateRoomMessage;
-import com.boringpeople.werewolves.message.JoinRoomMessage;
-import com.boringpeople.werewolves.message.MessageType;
-import com.boringpeople.werewolves.message.SignInResultMessage;
+import com.boringpeople.werewolves.message.*;
 import com.boringpeople.werewolves.util.MessageUtil;
 import com.boringpeople.werewolves.util.SocketChannelUtil;
 
@@ -52,10 +49,12 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
         byte[] data = SocketChannelUtil.readData((SocketChannel) key.channel());
         if (data != null && data.length > 0) {
             MessageType mt = MessageUtil.getMessageType(data);
+            Session session=(Session)key.attachment();
             switch (mt) {
                 case SignIn:
-                    Session session=(Session)key.attachment();
-                    session.scheduleMessage(new SignInResultMessage());
+                    SignInMessage sim=MessageUtil.deSerializeMessage(data,new SignInMessage());
+                    session.player.nickName = sim.nickName;
+                    session.scheduleMessage(new SimpleMessage(0));
                     break;
                 case CreateRoom:
                     CreateRoomMessage crm = MessageUtil.deSerializeMessage(data, new CreateRoomMessage());
@@ -76,19 +75,17 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
     }
 
     private void createRoom(SelectionKey key, CreateRoomMessage crm) {
+        Session session = (Session) key.attachment();
         try {
             Room room = new Room(this);
             room.start();
             rooms.put(room.id, room);
             joinRoom(key, room);
-            Session session = (Session) key.attachment();
-            CreateRoomMessage rcrm=new CreateRoomMessage();
-            rcrm.roomId=room.id;
-            session.scheduleMessage(rcrm);
+            session.scheduleMessage(new SimpleMessage(StateCode.Success));
         } catch (IOException e) {
             e.printStackTrace();
+            session.scheduleMessage(new SimpleMessage(StateCode.CreateRoomError,e.getMessage()));
         }
-
     }
 
     private void joinRoom(SelectionKey key, JoinRoomMessage jrm) {
@@ -100,10 +97,7 @@ public class Hall extends AbstractMessageProcessor implements IDispose, IHall {
             }
         }else {
             Session session = (Session) key.attachment();
-            JoinRoomMessage rjrm=new JoinRoomMessage();
-            rjrm.code=-1;
-            rjrm.description="Room "+jrm.roomId+" Not Exists.";
-            session.scheduleMessage(rjrm);
+            session.scheduleMessage(new SimpleMessage(StateCode.RoomNotExists,"Room "+jrm.roomId+" Not Exists."));
         }
     }
 

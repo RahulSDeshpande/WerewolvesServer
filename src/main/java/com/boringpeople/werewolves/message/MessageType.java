@@ -2,6 +2,7 @@ package com.boringpeople.werewolves.message;
 
 public enum MessageType {
     None(""),
+    DefaultResponse("defaultResponse"),
 	SignIn("signIn"), CreateRoom("createRoom"), JoinRoom("joinRoom"), LeaveRoom("leaveRoom"), Ready("ready"), Disready(
 			"disready"), GameStart("gameStart"), AssignRoles("assignRoles"), SelectPlayers("selectPlayers");
 
