@@ -1,10 +1,10 @@
-package com.boringpeople.werewolves.util;
+package com.boringpeople.werewolf.util;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import com.boringpeople.werewolves.message.Message;
+import com.boringpeople.werewolf.message.Message;
 
 public class SocketChannelUtil {
 	

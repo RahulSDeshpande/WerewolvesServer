@@ -1,6 +1,6 @@
 package com.boringpeople;
 
-import com.boringpeople.werewolves.Hall;
+import com.boringpeople.werewolf.Hall;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -52,7 +52,6 @@ public class Main {
         } catch (IOException e) {
             System.out.printf("error %d ,%s\n", port, e.getMessage());
         }
-
         hall.dispose();
     }
 

@@ -1,4 +1,4 @@
-package com.boringpeople.werewolves.processor;
+package com.boringpeople.werewolf.processor;
 
 public interface ISignProcessor extends IProcessor {
 

@@ -1,4 +1,4 @@
-package com.boringpeople.werewolves.message;
+package com.boringpeople.werewolf.message;
 
 public enum MessageType {
     None(""),

@@ -1,4 +1,4 @@
-package com.boringpeople.werewolves;
+package com.boringpeople.werewolf;
 
 /**
  * Created with IntelliJ IDEA.

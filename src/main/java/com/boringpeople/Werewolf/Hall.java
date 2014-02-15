@@ -1,8 +1,8 @@
-package com.boringpeople.werewolves;
+package com.boringpeople.werewolf;
 
-import com.boringpeople.werewolves.message.*;
-import com.boringpeople.werewolves.util.MessageUtil;
-import com.boringpeople.werewolves.util.SocketChannelUtil;
+import com.boringpeople.werewolf.message.*;
+import com.boringpeople.werewolf.util.MessageUtil;
+import com.boringpeople.werewolf.util.SocketChannelUtil;
 
 import java.io.IOException;
 import java.net.StandardSocketOptions;

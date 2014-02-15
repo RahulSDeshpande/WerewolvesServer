@@ -1,4 +1,4 @@
-package com.boringpeople.werewolves;
+package com.boringpeople.werewolf;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;

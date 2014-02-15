@@ -1,4 +1,4 @@
-package com.boringpeople.werewolves.message;
+package com.boringpeople.werewolf.message;
 
 /**
  * Created by jianxingqiao on 2/11/14.
